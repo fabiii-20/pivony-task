@@ -36,3 +36,33 @@
     transform: rotate(360deg);
   }
 }
+
+input {
+  width:100%;
+  margin: 5px;
+  padding: 4px 2px;
+}
+
+.copyBox {
+  width:350px;
+  height:200px;
+  border:2px solid black;
+  position: relative;
+  padding:4px;
+}
+
+.btleft {
+  right:0;
+  bottom:0;
+  position:absolute;
+}
+
+.container {
+  padding:10px;
+}
+
+.btn {
+  padding:2px;
+  margin:5px 0px;
+}
+
