@@ -1,23 +1,68 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
-import SurveyPopup from "./SurveyPopup.tsx";
+import SurveyPopup from "./SurveyPopup";
+import { initializeApp } from "firebase/app";
 
+import { getAnalytics } from "firebase/analytics";
+import { getDatabase, ref, set, get, update } from "firebase/database";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAdr8ujMuNVqOTWBDhDnTad15jSSklJ_7s",
+
+  authDomain: "bookexchange-60635.firebaseapp.com",
+
+  databaseURL: "https://bookexchange-60635.firebaseio.com",
+
+  projectId: "bookexchange-60635",
+
+  storageBucket: "bookexchange-60635.appspot.com",
+
+  messagingSenderId: "532023126265",
+
+  appId: "1:532023126265:web:c973f478134728baaf9a28",
+
+  measurementId: "G-WRYPJDG375",
+};
+
+// Initialize Firebase
+
+const app = initializeApp(firebaseConfig);
+
+const analytics = getAnalytics(app);
 function App() {
-  const questions = [
-    { type: "star"},
-    { type: "text"},
-  ];
+  const questions = [{ type: "star" }, { type: "text" }];
 
-  const surveyCount = 0;
-  const delayCountInSeconds = 15;
-  const displayFrequencyInMin = 30;
-  const [ratingTitle, setRatingTitle] = React.useState("");
-  const [goodRatingTitle, setGoodRatingTitle] = React.useState(
-    "Thank you for your feedback. Please let us know how we can help you further"
-  );
-  const [badRatingTitle, setBadRatingTitle] = React.useState(
-    "We are sorry to hear that. Please let us know how we can help you further"
-  );
+  const surveyCount = 3;
+  const delayCountInSeconds = 3;
+  const displayFrequencyInMin = 0.2;
+  const [config, setConfig] = useState<any>({});
+
+  const db = getDatabase();
+
+  const getConfig = () => {
+    get(ref(db, "config")).then((snapshot) => {
+      console.log(snapshot.val());
+      setConfig(snapshot.val());
+    });
+  };
+  useEffect(() => {
+    getConfig();
+  }, []);
+
+  const updateConfig = (config: any) => {
+    update(ref(db, "config"), {
+      maxTimes: config.maxTimes,
+      intervalMinutes: config.intervalMinutes,
+      initialDelaySeconds: config.initialDelaySeconds,
+    })
+      .then(() => {
+        alert("updated successfully");
+        getConfig();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   const [isComponentVisible, setIsComponentVisible] = React.useState(false);
   return (
@@ -28,51 +73,21 @@ function App() {
         This is a simple survey form creator. You can create a survey form and
         add it to your website.
       </p>
-      <div>
-        <label>Enter your Survey Question</label>
-        <input
-          type="text"
-          placeholder="eg: Rate us from 1 to 10"
-          value={ratingTitle}
-          onChange={(e) => setRatingTitle(e.target.value)}
-        />
+      <div className="box">
+        <div>Rating text - {config.ratingText}</div>
+        <div>Good Rating text - {config.goodRatingText}</div>
+        <div>Bad Rating text - {config.badRatingText}</div>
       </div>
-      <div>
-        {" "}
-        <label>Enter your next Title if rating is greater than 5</label>
-        <input
-          type="text"
-          placeholder="eg: Thank you for your feedback. Please let us know how we can help you further"
-          value={goodRatingTitle}
-          onChange={(e) => setGoodRatingTitle(e.target.value)}
-        />
-      </div>
-
-      <div>
-        <label>Enter your next Title if rating is less than 5</label>
-        <input
-          type="text"
-          placeholder="eg: We are sorry to hear that. Please let us know how we can help you further"
-          value={badRatingTitle}
-          onChange={(e) => setBadRatingTitle(e.target.value)}
-        />
-      </div>
-      <button onClick={() => setIsComponentVisible(true)} className="btn">
-        Generate
-      </button>
+      <div>Max times - {config.maxTimes}</div>
+      <div>Interval minutes - {config.intervalMinutes}</div>
+      <div>Initial delay seconds - {config.initialDelaySeconds}</div>
       {/* Render the SurveyPopup component */}
 
-      {isComponentVisible && (
-        <SurveyPopup
-          questions={questions}
-          surveyCount={surveyCount}
-          delayCountInSeconds={delayCountInSeconds}
-          displayFrequencyInMin={displayFrequencyInMin}
-          ratingTitle={ratingTitle}
-          goodRatingTitle={goodRatingTitle}
-          badRatingTitle={badRatingTitle}
-        />
-      )}
+      <SurveyPopup
+        questions={questions}
+        updateConfig={updateConfig}
+        config={config}
+      />
     </div>
   );
 }

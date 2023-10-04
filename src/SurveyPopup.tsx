@@ -12,252 +12,191 @@ function IconContentCopy(props:any) {
       </svg>
     );
   }
-function SurveyPopup({ questions, surveyCount, delayCountInSeconds, displayFrequencyInMin, ratingTitle,goodRatingTitle,badRatingTitle }:any) {
+function SurveyPopup({ questions, config, updateConfig }:any) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [responses, setResponses] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
-
-  // Show the survey pop-up after the specified delay
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowPopup(true);
-    }, delayCountInSeconds * 1000);
-
-    return () => clearTimeout(timer);
-  }, [delayCountInSeconds]);
-
-  // Function to handle the "Next" button click
-  const handleNextClick = () => {
-    const response = responses[currentQuestionIndex];
-    if (response !== undefined) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    } else {
-      alert('Please provide a response.');
-    }
-  };
-
-  // Function to handle the "Submit" button click
-  const handleSubmitClick = () => {
-    const response = responses[currentQuestionIndex];
-    if (response !== undefined) {
-      // You can send the response to your server here for further processing.
-      console.log('Response:', response);
-
-      // Hide the survey pop-up
-      setShowPopup(false);
-
-      // Update the survey count and timestamp in localStorage
-      surveyCount++;
-      localStorage.setItem('surveyCount', surveyCount.toString());
-      localStorage.setItem('lastSurveyTime', Date.now().toString());
-    } else {
-      alert('Please provide a response.');
-    }
-  };
-
-  // Check if the survey should be displayed
-  useEffect(() => {
-    const lastSurveyTime = parseInt(localStorage.getItem('lastSurveyTime') || '0');
-    const currentTime = Date.now();
-
-    if (surveyCount < 3 && (currentTime - lastSurveyTime >= displayFrequencyInMin * 60 * 1000)) {
-      setShowPopup(true);
-    }
-  }, [surveyCount, displayFrequencyInMin]);
-
-  // ...
-
-
-  
-
-  // Implement the rendering of survey questions here
-  const renderSurveyQuestion = (index:any) => {
-    const question = questions[index];
-    if (!question) {
-      return `
-        <div>
-          Thank you for completing the survey!
-        </div>
-      `;
-    }
-  
-    switch (question.type) {
-      case 'checkbox':
-        return `
-          <div>
-            <p class="title">${question.text}</p>
-            ${question.options.map((option:any, index:any) => `
-              <label key="${index}">
-                <input
-                  type="checkbox"
-                  value="${option}"
-                  // Implement checkbox input handling here
-                />
-                ${option}
-              </label>
-            `).join('')}
-            <button onClick="handleNextClick()">Next</button>
-          </div>
-        `;
-      case 'star':
-        return `
-          <div>
-            <p>${ratingTitle}</p>
-            <input
-              type="number"
-              min="1"
-              max="10"
-            />
-            <button onClick="handleNextClick()">Next</button>
-          </div>
-        `;
-      case 'text':
-        return `
-          <div>
-            <p class="title"></p>
-            <textarea
-              rows="4"
-              cols="50"
-            ></textarea>
-            <button onClick="handleSubmitClick()">Send</button>
-          </div>
-        `;
-      default:
-        return '';
-    }
-  };
-  
-  
  
-  // ...
 
-const questionString = "${currentQuestionContent}"
   
 // Generate JavaScript code for the survey pop-up
 const generateJavaScriptCode = () => {
-    const jsCode = `
-      // JavaScript code for the survey pop-up
-      const surveyPopup = document.createElement('div');
+  const getRatingCode = () =>  `<div>
+  <p>${config.ratingText}</p>
+  <input
+    type="number"
+    min="1"
+    max="10"
+  />
+  <button id="nextBtn">Next</button>
+</div>`;
 
-      surveyPopup.innerHTML = \`
-        <div class="survey-popup">
-            ${renderSurveyQuestion(currentQuestionIndex)}
-        </div>
-      \`;
+const getTextCode = () =>  ` <div>
+<p class="title"></p>
+<textarea
+  rows="4"
+  cols="50"
+></textarea>
+<button id="submitBtn">Send</button>
+</div>`;
+
+  const jsCode = `
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+
+  // If you enabled Analytics in your project, add the Firebase SDK for Google Analytics
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-analytics.js";
+
+  // Add Firebase products that you want to use
+  import { getAuth } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+  const firebaseConfig = {
+    apiKey: "AIzaSyAdr8ujMuNVqOTWBDhDnTad15jSSklJ_7s",
+
+    authDomain: "bookexchange-60635.firebaseapp.com",
+
+    databaseURL: "https://bookexchange-60635.firebaseio.com",
+
+    projectId: "bookexchange-60635",
+
+    storageBucket: "bookexchange-60635.appspot.com",
+
+    messagingSenderId: "532023126265",
+
+    appId: "1:532023126265:web:c973f478134728baaf9a28",
+
+    measurementId: "G-WRYPJDG375",
+  };
+
+  const app = initializeApp(firebaseConfig);
+
+  const analytics = getAnalytics(app);
+  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js"
+  const intervalMinutes = ${config.initialDelaySeconds};
+  const maxTimes = ${config.maxTimes};
+  const initialDelaySeconds = ${config.initialDelaySeconds};
+  let dataCaptured = false;
+  let closeCount = 0;
+  let result = {};
+  let surveyPopup; 
+  function handleNextClick()  {
+      
+      const ratingInput = document.querySelector('input[type="number"]');
+      const rating = parseInt(ratingInput.value);
+      result["rating"] = rating
+      document.querySelector('.survey-popup').innerHTML = \`${getTextCode()}\`;
+      // responses[0] = rating;
+      if(rating< 5) {
+          document.querySelector('.title').innerHTML = \'${config.badRatingText}\';
+        }else {
+          document.querySelector('.title').innerHTML =\'${config.goodRatingText}\';
+        }
+        const submitBtn = document.querySelector("#submitBtn"); 
+      submitBtn?.addEventListener("click", handleSubmitClick);
+    
+  };
   
+  // Function to handle the "Submit" button click
+  function handleSubmitClick()  {
+    const textArea = document.querySelector('textarea');
+    const text = textArea.value;
+    console.log("text", text)
+    result["text"] = text
+    const db = getDatabase()
+    set(ref(db, 'survey/' + Date.now()), result).then(() => {document.querySelector(".survey-popup").style.display="none"
+    dataCaptured= true
+     alert("Thank you for your feedback")
+  }).catch((error) => {console.log(error,"Error occured")})
+  };
+  
+  function displayModal() {
+  
+      surveyPopup = document.createElement("div");
+      surveyPopup.className = "survey-popup"
+
+      surveyPopup.innerHTML = \`${getRatingCode()}\`;
+      
+    
+      surveyPopup.style.position = "fixed";
+      surveyPopup.style.top = "50%";
+      surveyPopup.style.left = "50%";
+      surveyPopup.style.transform = "translate(-50%, -50%)";
+      surveyPopup.style.backgroundColor = "white";
+      surveyPopup.style.padding = "20px";
+      surveyPopup.style.borderRadius = "5px";
+      surveyPopup.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.2)";
+      surveyPopup.style.zIndex = "1000";
+    
+      // Close button
+      const closeButton = document.createElement("span");
+      closeButton.textContent = "×";
+      closeButton.style.cursor = "pointer";
+      closeButton.style.position = "absolute";
+      closeButton.style.top = "10px";
+      closeButton.style.right = "10px";
+      closeButton.addEventListener("click", () => {
+        surveyPopup.style.display = "none";
+        closeCount = closeCount + 1;
+        console.log("closeCount", closeCount);
+      });
+      surveyPopup.appendChild(closeButton);
+    
+      // Show the survey pop-up
+      surveyPopup.style.display = "block";
+    
       // Add the survey pop-up to the body of the webpage
       document.body.appendChild(surveyPopup);
-  
+    
       // Array to store responses
-      const responses = Array(${questions.length}).fill(null);
-  
+      const responses = Array(2).fill(null);
+    
       // Current question index
       let currentQuestionIndex = 0;
-  
+    
       // Function to handle the "Next" button click
-      const handleNextClick = () => {
-        ${getNextQuestionLogic()}
-      };
-  
+    
       // Function to handle the "Submit" button click
-      const handleSubmitClick = () => {
-        ${getSubmitLogic()}
-      };
-  
+    
       // Display the survey pop-up
-      surveyPopup.style.display = 'block';
-    `;
+      const nextBtn = document.querySelector("#nextBtn"); 
+      nextBtn?.addEventListener("click", handleNextClick);
+      
+      surveyPopup.style.display = "block";
+    }
   
+  setTimeout(displayModal, initialDelaySeconds * 1000);
+  
+  
+    setInterval(() => {
+      if ((closeCount < maxTimes) && surveyPopup.style.display!== "block" && !dataCaptured ) {
+        displayModal();
+      }
+    }, intervalMinutes * 60 * 1000);
+    
+  
+</script>
+    `;  
     return jsCode;
   };
-  const myQuestions = questions?.map((question:any, index:any) =>
-  ({index:index,content:renderSurveyQuestion(index)})
-  )
 
-const renderQuestionByIndex = () =>{
-    const data = myQuestions.find((q:any) => q.index == currentQuestionIndex )
-    console.log(data)
-   return  data?.content
+  const [dummyConfig, setDummyConfig] = useState({
+    maxTimes: config.maxTimes,
+    intervalMinutes: config.intervalMinutes,
+    initialDelaySeconds: config.initialDelaySeconds,
+  })
 
-//    return myQuestions?.map((question:any, index:any) => question.content).join('')
+  useEffect(() => {
+    console.log("dummyConfig", dummyConfig)
+  },[dummyConfig]
+)
 
-}
-  // Function to generate logic for displaying the next question
-  const getNextQuestionLogic = () => {
-    const currentQuestion = questions[currentQuestionIndex];
-    const nextQuestion = questions[currentQuestionIndex + 1];
-  
-    if (currentQuestion.type === 'checkbox') {
-      // Handle checkbox input and store selected options in responses array
-      return `
-        const selectedOptions = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(input => input.value);
-        responses[${currentQuestionIndex}] = selectedOptions;
-      `;
-    } else if (currentQuestion.type === 'star') {
-      // Handle star rating input and store rating in responses array
-      return `
-        const ratingInput = document.querySelector('input[type="number"]');
-        const rating = parseInt(ratingInput.value);
-        
-        document.querySelector('.survey-popup').innerHTML = \``+renderSurveyQuestion(currentQuestionIndex+1)+`\`;
-        responses[${currentQuestionIndex}] = rating;
-        if(rating< 5) {
-            document.querySelector('.title').innerHTML = '${badRatingTitle}';
-          }else {
-            document.querySelector('.title').innerHTML ='${goodRatingTitle}';
-          }
-      `;
-    } else if (currentQuestion.type === 'text') {
-      // Handle text input and store text response in responses array
-      return `
-        const textInput = document.querySelector('textarea');
-        const textResponse = textInput.value;
-        responses[${currentQuestionIndex}] = textResponse;
-      `;
-    } else {
-      // Handle other question types here
-      return '';
-    }
-  };
-  
-  // Function to generate logic for handling submission
-  const getSubmitLogic = () => {
-    const currentQuestion = questions[currentQuestionIndex];
-  
-    // Send the response data to an API route
-    return `
-      const response = responses[${currentQuestionIndex}];
-      const apiUrl = 'https://your-api-url.com/submit-survey-response';
-  
-      // Implement the API call here to send the response data
-      fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          questionType: '${currentQuestion.type}',
-          response,
-        }),
-      })
-        .then(response => response.json())
-        .then(data => {
-          console.log('Survey response submitted successfully:', data);
-        })
-        .catch(error => {
-          console.error('Error submitting survey response:', error);
-        });
-    `;
-  };
-  
-  // ...
-  
+
 
   return (
     <div>
      
       <div className='copyBox'>
-        <div>Code generated!</div>
+        <div> Click on copy btn to copy the js code. paste it inside body tab.</div>
         <button onClick={() => {
             navigator.clipboard.writeText(generateJavaScriptCode())
             alert(
@@ -265,7 +204,44 @@ const renderQuestionByIndex = () =>{
             )
         } } className="btleft"><IconContentCopy/></button>
       </div>
-     
+
+      <div className='updateArea'>
+        <h1>Update Config Values</h1>
+        <div>
+          <label>Choose how much time to wait before showing the survey (In seconds) </label>
+          <input type="number"
+          max={1000}
+          value={dummyConfig?.initialDelaySeconds} onChange={(e) => setDummyConfig({
+            ...dummyConfig,
+            initialDelaySeconds: parseInt(e.target.value)
+          })} /> 
+        </div>
+        <div>
+          <label>Choose how many times to show the survey (In Times)</label>
+          <input
+          max={5}
+          type="number" value={dummyConfig?.maxTimes} onChange={(e) => setDummyConfig({
+            ...dummyConfig,
+            maxTimes:parseInt(e.target.value)
+          })} /> 
+      </div>
+        <div>
+          <label>Choose how frequently to show the survey (In Minutes)</label>
+          <div>
+          <select onChange={(e) => setDummyConfig({
+              ...dummyConfig,
+              intervalMinutes: parseInt(e.target.value)
+            })}>
+            <option value={1}>1 min</option>
+            <option value={5}>5 min</option>
+            <option value={30}>30 min</option>
+
+          </select>
+          </div>
+        
+          </div>
+     <button className='updateBtn' onClick={() => updateConfig(dummyConfig)}> UPDATE CONFIG </button>
+    </div>
     </div>
   );
 }
