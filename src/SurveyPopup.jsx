@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-function IconContentCopy(props:any) {
+function IconContentCopy(props) {
     return (
       <svg
         viewBox="0 0 24 24"
@@ -12,7 +12,7 @@ function IconContentCopy(props:any) {
       </svg>
     );
   }
-function SurveyPopup({ questions, config, updateConfig }:any) {
+function SurveyPopup({ questions, config, updateConfig }) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [responses, setResponses] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
@@ -72,7 +72,7 @@ const getTextCode = () =>  ` <div>
 
   const analytics = getAnalytics(app);
   import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js"
-  const intervalMinutes = ${config.initialDelaySeconds};
+  const intervalMinutes = ${config.intervalMinutes};
   const maxTimes = ${config.maxTimes};
   const initialDelaySeconds = ${config.initialDelaySeconds};
   let dataCaptured = false;

@@ -32,10 +32,8 @@ const analytics = getAnalytics(app);
 function App() {
   const questions = [{ type: "star" }, { type: "text" }];
 
-  const surveyCount = 3;
-  const delayCountInSeconds = 3;
-  const displayFrequencyInMin = 0.2;
-  const [config, setConfig] = useState<any>({});
+  
+  const [config, setConfig] = useState({});
 
   const db = getDatabase();
 
@@ -49,7 +47,7 @@ function App() {
     getConfig();
   }, []);
 
-  const updateConfig = (config: any) => {
+  const updateConfig = (config) => {
     update(ref(db, "config"), {
       maxTimes: config.maxTimes,
       intervalMinutes: config.intervalMinutes,
