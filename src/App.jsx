@@ -24,7 +24,7 @@ const firebaseConfig = {
   measurementId: "G-WRYPJDG375",
 };
 
-// Initialize Firebase
+
 
 const app = initializeApp(firebaseConfig);
 
@@ -65,7 +65,6 @@ function App() {
   const [isComponentVisible, setIsComponentVisible] = React.useState(false);
   return (
     <div className="container">
-      {/* Your webpage content here */}
       <h1>Survey Form Creator</h1>
       <p>
         This is a simple survey form creator. You can create a survey form and
@@ -79,7 +78,7 @@ function App() {
       <div>Max times - {config.maxTimes}</div>
       <div>Interval minutes - {config.intervalMinutes}</div>
       <div>Initial delay seconds - {config.initialDelaySeconds}</div>
-      {/* Render the SurveyPopup component */}
+     
 
       <SurveyPopup
         questions={questions}
