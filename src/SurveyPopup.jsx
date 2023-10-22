@@ -71,44 +71,9 @@ const getTextCode = () =>  ` <div>
 
   const analytics = getAnalytics(app);
   import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js"
-  let intervalMinutes;
-      let maxTimes;
-      let initialDelaySeconds;
-
-      async function fetchConfig() {
-        const db = getDatabase();
-        const configRef = ref(db, "config"); // Assuming you have a "config" node in your database
-
-        try {
-          const snapshot = await get(configRef);
-          if (snapshot.exists()) {
-            const configData = snapshot.val();
-            let intervalMinutes = configData.intervalMinutes;
-            let maxTimes = configData.maxTimes;
-            let initialDelaySeconds = configData.initialDelaySeconds;
-            console.log("configData", configData);
-            setTimeout(displayModal, initialDelaySeconds * 1000);
-
-            setInterval(() => {
-              if (
-                closeCount < maxTimes &&
-                surveyPopup.style.display !== "block" &&
-                !dataCaptured
-              ) {
-                displayModal();
-              }
-            }, intervalMinutes * 60 * 1000);
-
-          } else {
-            console.error("Config data not found in Firebase.");
-          }
-        } catch (error) {
-          console.error("Error fetching config data:", error);
-        }
-      }
-
-      // Call the fetchConfig function to fetch and use the config values
-      fetchConfig();
+  const intervalMinutes = ${config.intervalMinutes};
+  const maxTimes = ${config.maxTimes};
+  const initialDelaySeconds = ${config.initialDelaySeconds};
   let dataCaptured = false;
   let closeCount = 0;
   let result = {};
@@ -196,7 +161,17 @@ const getTextCode = () =>  ` <div>
       nextBtn?.addEventListener("click", handleNextClick);
       
       surveyPopup.style.display = "block";
-    }    
+    }
+  
+  setTimeout(displayModal, initialDelaySeconds * 1000);
+  
+  
+    setInterval(() => {
+      if ((closeCount < maxTimes) && surveyPopup.style.display!== "block" && !dataCaptured ) {
+        displayModal();
+      }
+    }, intervalMinutes * 60 * 1000);
+    
   
 </script>
     `;  
