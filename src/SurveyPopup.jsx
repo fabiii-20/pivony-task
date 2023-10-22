@@ -1,4 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
+
+const List = ({ title, value }) =>  <div className="px-4 py-4 sm:flex sm:gap-4 sm:px-0 divider">
+<dt className="sm:w-8/12 text-sm font-semibold font-medium leading-6 text-gray-900">{title}</dt>
+<dd className="sm:w-4/12 mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{value}</dd>
+</div>
+
 function IconContentCopy(props) {
     return (
       <svg
@@ -219,54 +226,55 @@ const getTextCode = () =>  ` <div>
   return (
     <div>
      
-      <div className='copyBox'>
+      <div className='copyBox block max-w-sm p-2 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6' >
         <div> Click on copy btn to copy the js code. paste it inside body tab.</div>
-        <button onClick={() => {
+        <button 
+                        className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 btleft m-2"
+        onClick={() => {
             navigator.clipboard.writeText(generateJavaScriptCode())
-            alert(
+            toast.success(
             "Copied to clipboard!"
             )
-        } } className="btleft"><IconContentCopy/></button>
+        } } ><IconContentCopy/></button>
       </div>
 
-      <div className='updateArea'>
-        <h1>Update Config Values</h1>
-        <div>
-          <label>Choose how much time to wait before showing the survey (In seconds) </label>
-          <input type="number"
+      <div className="border-t border-gray-200 pb-5 mt-10 py-4">
+      <h3 className="text-base font-semibold leading-6 text-gray-900">Update Config Value</h3>
+      <div className="mt-2 max-w-4xl text-sm text-gray-500">
+      
+       
+
+      <List title="Choose how much time to wait before showing the survey (In seconds)" value={ <input type="number"
           max={1000}
+          className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
           value={dummyConfig?.initialDelaySeconds} onChange={(e) => setDummyConfig({
             ...dummyConfig,
             initialDelaySeconds: parseInt(e.target.value)
-          })} /> 
-        </div>
-        <div>
-          <label>Choose how many times to show the survey (In Times)</label>
-          <input
+          })} /> } />
+      <List title="Choose how many times to show the survey (In Times)" value={ <input
           max={5}
+          className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+
           type="number" value={dummyConfig?.maxTimes} onChange={(e) => setDummyConfig({
             ...dummyConfig,
             maxTimes:parseInt(e.target.value)
-          })} /> 
-      </div>
-        <div>
-          <label>Choose how frequently to show the survey (In Minutes)</label>
-          <div>
-          <select onChange={(e) => setDummyConfig({
+          })} /> }/>
+
+          <List title="Choose how frequently to show the survey (In Minutes)" value={   <select onChange={(e) => setDummyConfig({
               ...dummyConfig,
               intervalMinutes: parseInt(e.target.value)
-            })}>
+            })}
+            className='        className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"'
+            >
             <option value={1}>1 min</option>
             <option value={5}>5 min</option>
             <option value={30}>30 min</option>
 
-          </select>
-          </div>
-        
-          </div>
-     <button className='updateBtn' onClick={() => updateConfig(dummyConfig)}> UPDATE CONFIG </button>
+          </select>} />
+     <button         className="rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" onClick={() => updateConfig(dummyConfig)}> UPDATE CONFIG </button>
     </div>
     </div>
+      </div>
   );
 }
 
