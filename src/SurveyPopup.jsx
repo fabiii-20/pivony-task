@@ -77,7 +77,7 @@ const getTextCode = () =>  ` <div>
   const app = initializeApp(firebaseConfig);
 
   const analytics = getAnalytics(app);
-  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js"
+  import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js"
   let intervalMinutes;
       let maxTimes;
       let initialDelaySeconds;
